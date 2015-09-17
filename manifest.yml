@@ -1,0 +1,16 @@
+---
+applications:
+  .:
+    name: barby-app
+    framework:
+      name: standalone
+      info:
+        mem: 64M
+        description: Standalone Application
+        exec: 
+    runtime: node08
+    command: start
+    infra: aws
+    url: barby.aws.af.cm
+    mem: 256M
+    instances: 1

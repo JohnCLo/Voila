@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="simple-statistics/src/simple_statistics.js"></script>
+    <script src="/socket.io/lib/socket.io.js"></script>
+
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+</head>
+
+<body>
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <script>
+    // Init Socket
+    // REMEMBER TO CHANGE URL IF CHANGING APPLICATION URL!
+    var socket = io.connect('http://localhost/');
+
+    socket.on('simulation_returns', function (data) {
+        //console.log(data);
+        graph(data);
+    });
+
+    function graph (data){
+        $(function () {
+            $('#container').highcharts({
+                chart: {type: 'area'},
+                title: {text: 'Backtest with $100,000 initial capital (weekly data)'},
+                subtitle: {text: 'May 31 and and June 1, 2015 at two locations in Vik i Sogn, Norway'},
+                xAxis: {
+                    type: 'datetime',
+                    labels: {
+                        overflow: 'justify'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Wind speed (m/s)'
+                    },
+                    //min: 0,
+                    minorGridLineWidth: 0,
+                    gridLineWidth: 0,
+                    alternateGridColor: null,
+                    plotBands: [{ // Light air
+                        from: 0.3,
+                        to: 1.5,
+                        color: '#EEEEEE',
+                        label: {
+                            text: 'Light air',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }, { // Light breeze
+                        from: 1.5,
+                        to: 3.3,
+                        color: 'rgba(0, 0, 0, 0)',
+                        label: {
+                            text: 'Light breeze',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }, { // Gentle breeze
+                        from: 3.3,
+                        to: 5.5,
+                        color: '#EEEEEE',
+                        label: {
+                            text: 'Gentle breeze',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }, { // Moderate breeze
+                        from: 5.5,
+                        to: 8,
+                        color: 'rgba(0, 0, 0, 0)',
+                        label: {
+                            text: 'Moderate breeze',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }, { // Fresh breeze
+                        from: 8,
+                        to: 11,
+                        color: '#EEEEEE',
+                        label: {
+                            text: 'Fresh breeze',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }, { // Strong breeze
+                        from: 11,
+                        to: 14,
+                        color: 'rgba(0, 0, 0, 0)',
+                        label: {
+                            text: 'Strong breeze',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }, { // High wind
+                        from: 14,
+                        to: 15,
+                        color: '#EEEEEE',
+                        label: {
+                            text: 'High wind',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }]
+                },
+                tooltip: {
+                    valueSuffix: ' m/s'
+                },
+                plotOptions: {
+                    series:{
+                        fillOpacity: 0.2,
+                    },
+                    area: {
+                        lineWidth: 2,
+                        states: {
+                            hover: {
+                                lineWidth: 2
+                            }
+                        },
+                        marker: {
+                            enabled: true,
+                            symbol: 'circle',
+                            radius: 2
+                        },
+
+                        pointInterval: 604800000, // one week
+                        pointStart: Date.parse(data['start_date'])//Date.UTC(2015, 4, 31, 0, 0, 0)
+                    }
+                },
+                series: [{
+                    name: 'Algorithm',
+                    data: data.algorithm,
+                    color:'#4572A7'
+
+                }, {
+                    name: 'Benchmark (SPY)',
+                    data: data.spy,
+                    color:'#C50000'
+                }, {
+                    name: 'SPY control',
+                    data: data.spy_control,
+                    color:'#FF6600'
+                }, {
+                    name: 'Predictor Event',
+                    data: data.spy_predictor,
+                    color:'#B61964'
+                }],
+                navigation: {
+                    menuItemStyle: {
+                        fontSize: '10px'
+                    }
+                }
+            });
+        });
+    }
+    </script>
+</body>
+</html>
